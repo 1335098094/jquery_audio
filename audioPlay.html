@@ -1,0 +1,332 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+		<link rel="stylesheet" href="css/common.css"/>
+		<link rel="stylesheet" href="css/audioPlay.css"/>
+		<title>happy English</title>
+		<style>
+			body{
+				background: #f68a5c;
+			}
+		</style>
+	</head>
+	<body>
+		<div>
+			<div class="top">
+				<p class="top_title">Old McDonald Had A Farm</p>
+				<p class="top_author">by The Kiboomers</p>
+			</div>
+		</div>
+		
+		<div class="vedioShow">
+			<img src="img/audioPlay/vedio.png" class="vedioImg"/>
+		</div>
+		
+		<div class="audio-wrapper">
+		    <audio id="audio">
+		        <source src="http://sc1.111ttt.com/2017/1/11/11/304112002347.mp3" type="audio/mp3">
+		    </audio>
+		    
+		    <div class="audio-right">
+		        <div class="progress-bar-bg" id="progressBarBg"><span id="progressDot" style="left:0px"></span>
+		            <div class="progress-bar" id="progressBar"></div>
+		        </div>
+		        <div class="audio-time"><span class="audio-length-current" id="audioCurTime">00:00</span><span class="audio-length-total" id="audio-length-total"></span></div>
+		    </div>
+		    
+		    <div class="audio-left"><img id="audioPlayer" src="img/audioPlay/vPlay.png" ></div>
+		</div>
+	</body>
+		<script type="text/javascript" src="js/jquery-3.2.1.min.js" ></script>
+
+		<script>
+			var audio = $('audio')[0];
+			$(document).ready(function() {
+				
+				// 控制音频文件名显示宽度
+				var maxW = $('.audio-right').width();
+				$('.audio-right p').css({
+					"max-width": maxW
+				});
+				initAudioEvent();
+				getTime();
+				dragMove();//并且滚动条开始滑动
+			});
+			//计算总时间
+			function getTime() {
+				setTimeout(function () {
+				var duration = $("#audio")[0].duration;
+				if(isNaN(duration)){
+				getTime();
+				}
+				else{
+					var allTime=transTime($("#audio")[0].duration);
+					document.getElementById('audio-length-total').innerHTML=allTime;
+				}
+				}, 10);
+				}
+			
+			/**
+			 * 初始化音频控制事件
+			 */
+			function initAudioEvent() {
+				// 点击播放/暂停图片时，控制音乐的播放与暂停
+				$('#audioPlayer').click(function() {
+		
+					// 监听音频播放时间并更新进度条
+					audio.addEventListener('timeupdate', function() {
+						updateProgress(audio);
+					}, false);
+		
+					// 监听播放完成事件
+					audio.addEventListener('ended', function() {
+						audioEnded();
+					}, false);
+		
+					// 改变播放/暂停图片
+					if(audio.paused) {
+						// 开始播放当前点击的音频
+						audio.play();
+						$('#audioPlayer').attr('src', 'img/audioPlay/vStop.png');
+						$('.vedioImg').addClass('rotateImg');
+					} else {
+						audio.pause();
+						$('#audioPlayer').attr('src', 'img/audioPlay/vPlay.png');
+						$('.vedioImg').removeClass('rotateImg');
+					}
+					addListenTouch();
+				});
+		
+				// 点击进度条跳到指定点播放
+				$('#progressBarBg').click(function(e) {
+					// 只有音乐开始播放后才可以调节，已经播放过但暂停了的也可以
+					if(!audio.paused || audio.currentTime != 0) {
+						var pgsWidth = $('.progress-bar-bg').width();
+						var rate = e.offsetX / pgsWidth;
+						audio.currentTime = audio.duration * rate;
+						updateProgress(audio);
+						
+					}
+				});
+		
+				/*var dot = document.getElementById('progressDot');
+				// 鼠标拖动进度点时可以调节进度
+				// 只有音乐开始播放后才可以调节，已经播放过但暂停了的也可以
+				// 鼠标按下时
+				var moveing = false;
+				
+				function addListenTouch() {
+				    dot.addEventListener("touchstart", touchStart, false);
+				    dot.addEventListener("touchmove", touchMove, false);
+				    dot.addEventListener("touchend", touchEnd, false);
+				}
+				
+				function touchStart(e) { 
+				     e.preventDefault();
+				     var touch = e.touches[0];
+				     startX = touch.clientX;
+				 }
+				function touchMove(e) { //滑动        
+					 	var touch = e.touches[0];
+						var pgsWidth = $('.progress-bar-bg').width();
+				     	var oriLeft = dot.offsetLeft;
+						var mouseX = touch.clientX;
+						var maxLeft = oriLeft; // 向左最大可拖动距离
+						var maxRight = document.getElementById('progressBarBg').offsetWidth - oriLeft; // 向右最大可拖动距离
+						// 禁止默认的选中事	件（避免鼠标拖拽进度点的时候选中文字）
+						if(e.preventDefault) {
+							e.preventDefault();
+						} else {
+							e.returnValue = false;
+						}
+		
+						// 禁止事件冒泡
+						if(e && e.stopPropagation) {
+							e.stopPropagation();
+						} else {
+							window.event.cancelBubble = true;
+						}
+						var length = touch.clientX - mouseX;
+							if(length > maxRight) {
+								length = maxRight;
+							} else if(length < -maxLeft) {
+								length = -maxLeft;
+							}
+							var pgsWidth = $('.progress-bar-bg').width();
+							var rate = (oriLeft + length) / pgsWidth;							
+							var nowtime = audio.duration * rate;
+							audio.currentTime = nowtime;
+							updateProgress(audio);
+				 }
+				
+				function touchEnd(e) { //手指离开屏幕
+				     e.preventDefault();
+				     document.onmousemove = null;
+					 document.onmouseup = null;
+				 }
+
+			}*/
+			//进度条
+					 var startX, x, aboveX = 0; //触摸时的坐标 //滑动的距离  //设一个全局变量记录上一次内部块滑动的位置
+					//1拖动监听touch事件
+					var dot = document.getElementById('progressDot');
+					function addListenTouch() {
+					    dot.addEventListener("touchstart", touchStart, false);
+					    dot.addEventListener("touchmove", touchMove, false);
+					    dot.addEventListener("touchend", touchEnd, false);
+					    //var speed = document.getElementById("speed");
+					}
+					  
+					//touchstart,touchmove,touchend事件函数
+					 function touchStart(e) { 
+					     e.preventDefault();
+					     var touch = e.touches[0];
+					     startX = touch.pageX;
+					 }
+					 function touchMove(e) { //滑动         
+					     e.preventDefault();
+					     var touch = e.touches[0];
+					     x = touch.pageX - startX; //滑动的距离
+					     //drag.style.webkitTransform = 'translate(' + 0+ 'px, ' + y + 'px)';      
+					     dot.style.left = aboveX + x + "px"; // 
+					     //speed.style.left = -((window.innerWidth) - (aboveX + x)) + "px";
+						
+					 }
+					 function touchEnd(e) { //手指离开屏幕
+					     e.preventDefault();
+					     aboveX = parseInt(dot.style.left);
+					     var pgsWidth = $('.progress-bar-bg').width();
+					     var touch = e.touches[0];
+					     var dragPaddingLeft = dot.style.left;
+					     var change = dragPaddingLeft.replace("px", "");
+					     numDragpaddingLeft = parseInt(change);
+					     var currentTime = (numDragpaddingLeft / (pgsWidth)) * audio.duration;
+					     audio.currentTime = currentTime;
+					     	/*var pgsWidth = $('.progress-bar-bg').width();
+							var rate = (oriLeft + length) / pgsWidth;							
+							var nowtime = audio.duration * rate;
+							audio.currentTime = nowtime;*/
+					     
+					     
+					     
+					     /*var pgsWidth = $('.progress-bar-bg').width();
+				     	var oriLeft = dot.offsetLeft;//距离左边
+						var mouseX = touch.clientX;
+						var maxLeft = oriLeft; // 向左最大可拖动距离
+						var maxRight = document.getElementById('progressBarBg').offsetWidth - oriLeft; // 向右最大可拖动距离
+						// 禁止默认的选中事	件（避免鼠标拖拽进度点的时候选中文字）
+						if(e.preventDefault) {
+							e.preventDefault();
+						} else {
+							e.returnValue = false;
+						}
+		
+						// 禁止事件冒泡
+						if(e && e.stopPropagation) {
+							e.stopPropagation();
+						} else {
+							window.event.cancelBubble = true;
+						}
+						var length = touch.clientX - mouseX;
+							if(length > maxRight) {
+								length = maxRight;
+							} else if(length < -maxLeft) {
+								length = -maxLeft;
+							}
+							var pgsWidth = $('.progress-bar-bg').width();
+							var rate = (oriLeft + length) / pgsWidth;							
+							var nowtime = audio.duration * rate;
+							audio.currentTime = nowtime;
+							updateProgress(audio);*/
+					     
+					     
+					     
+					     
+					 }
+					 }
+					//3拖动的滑动条前进
+					function dragMove() {
+					    setInterval(function() {
+					    	var dot = document.getElementById('progressDot');
+					    	var value =audio.currentTime / audio.duration;
+					    	var value1 =(audio.currentTime / audio.duration)
+							$('#progressBar').css('width', value * 100 + '%');
+							dot.style.left=(value1 * 100 + '%');
+					        //dot.style.left = (audio.currentTime / audio.duration) * (window.innerWidth - 30) + "px";
+					        //speed.style.left = -((window.innerWidth) - (audio.currentTime / audio.duration) * (window.innerWidth - 30)) + "px";
+					    }, 500);
+					}
+			
+			
+			
+			
+			
+			
+			
+			
+			/**
+			 * 更新进度条与当前播放时间
+			 * @param {object} audio - audio对象
+			 */
+			function updateProgress(audio) {
+				var dot = document.getElementById('progressDot');
+				var value =audio.currentTime / audio.duration;
+				$('#progressBar').css('width', value * 100 + '%');
+				dot.style.left=(value * 100 + '%');
+				//dot.css('left', value * 100 + '%');
+				console.log(dot.style.left)
+				$('#audioCurTime').html(transTime(audio.currentTime));
+			}
+			/**
+			 * 播放完成时把进度调回开始的位置
+			 */
+			function audioEnded() {
+				$('#progressBar').css('width', 0);
+				$('#progressDot').css('left', 0);
+				$('#audioPlayer').attr('src', 'img/audioPlay/vPlay.png');
+				$('.vedioImg').removeClass('rotateImg');
+				$('#audioCurTime').html('00:00');
+				
+			}
+		
+			/**
+			 * 音频播放时间换算
+			 * @param {number} value - 音频当前播放时间，单位秒
+			 */
+			function transTime(value) {
+				var time = "";
+				var h = parseInt(value / 3600);
+				value %= 3600;
+				var m = parseInt(value / 60);
+				var s = parseInt(value % 60);
+				if(h > 0) {
+					time = formatTime(h + ":" + m + ":" + s);
+				} else {
+					time = formatTime(m + ":" + s);
+				}
+		
+				return time;
+			}
+			/**
+			 * 格式化时间显示，补零对齐
+			 * eg：2:4  -->  02:04
+			 * @param {string} value - 形如 h:m:s 的字符串 
+			 */
+			function formatTime(value) {
+				var time = "";
+				var s = value.split(':');
+				var i = 0;
+				for(; i < s.length - 1; i++) {
+					time += s[i].length == 1 ? ("0" + s[i]) : s[i];
+					time += ":";
+				}
+				time += s[i].length == 1 ? ("0" + s[i]) : s[i];
+		
+				return time;
+			}
+		</script>
+	</script>
+</html>

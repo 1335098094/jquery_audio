@@ -1,0 +1,125 @@
+.top{
+	margin-top: 6%;
+	text-align: center;
+}
+.top_title{
+	font-size: 17px;
+	color:#fff;
+	letter-spacing: 1px;
+	line-height:30px;
+}
+.top_author{
+	line-height: 30px;
+	font-size: 15px;
+	font-weight: 400;
+}
+.vedioShow{
+	margin-top: 10%;
+	text-align: center;
+}
+.vedioImg{
+	width: 63%;
+}
+@keyframes myfirst {
+	from {
+		transform: rotate(0deg);
+	}
+	to {
+		transform: rotate(360deg)
+	}
+}
+
+@-webkit-keyframes myfirst {
+	from {
+		transform: rotate(0deg);
+	}
+	to {
+		transform: rotate(360deg)
+	}
+}
+
+.rotateImg {
+	-webkit-animation: myfirst 10s linear infinite;
+	animation: myfirst 10s linear infinite;
+}
+/*this*/
+.audio-wrapper {
+    margin: 14% auto;
+    margin-bottom: 0px;
+}
+
+.audio-left {
+    text-align: center;
+}
+.audio-left img {
+    width: 16%;
+    position: relative;
+    top: 15px;
+    margin: 0;
+    /*display: initial;  */ /* 解除与app的样式冲突 */
+  /*  cursor: pointer;*/
+}
+
+.audio-right {
+    margin: auto;
+    width: 80%;
+}
+
+.audio-right p {
+    font-size: 15px;
+    height: 35%;
+    margin: 8px 0;
+
+    /* 歌曲名称只显示在一行，超出部分显示为省略号 */
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    max-width: 243px;   /* 要适配小屏幕手机，所以最大宽度先设小一点，后面js根据屏幕大小重新设置 */    
+}
+
+.progress-bar-bg {
+    background-color: #fff;
+    position: relative;
+    height: 3px;
+}
+
+.progress-bar {
+    background-color: #fff;
+    width: 0;
+    height: 2px;
+}
+
+.progress-bar-bg span {
+    content: " ";
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    -moz-border-radius: 50%;
+    -webkit-border-radius: 50%;
+    background-color: #fff;
+    position: absolute;
+    left: 0;
+    top: 50%;
+    margin-top: -10px;
+    margin-left: 0px;
+  /*  cursor: pointer;*/
+}
+
+.audio-time {
+    overflow: hidden;
+    margin-top: -1px;
+}
+
+.audio-length-total {
+    float: right;
+    font-size: 12px;
+    margin-top:10px;
+	color: #fff;
+}
+
+.audio-length-current {
+	margin-top:16px;
+	color: #fff;
+    float: left;
+    font-size: 12px;
+}
